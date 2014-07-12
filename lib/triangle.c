@@ -212,16 +212,16 @@
 
 #ifdef SINGLE
 #define REAL float
-#define INT int32_t
+#define INT int
 #define jl_REAL jl_float32_type
 #define jl_INT  jl_int32_type
 #define jl_BOX  jl_box_int32
 #else /* not SINGLE */
 #define REAL double
-#define INT  int64_t
+#define INT  int
 #define jl_REAL jl_float64_type
-#define jl_INT  jl_int64_type
-#define jl_BOX  jl_box_int64
+#define jl_INT  jl_int32_type
+#define jl_BOX  jl_box_int32
 #endif /* not SINGLE */
 
 /* If yours is not a Unix system, define the NO_TIMER compiler switch to     */
@@ -16016,6 +16016,102 @@ char **argv;
 #endif /* not TRILIBRARY */
 }
 
+
+void report(io, markers, reporttriangles, reportneighbors, reportsegments,
+            reportedges, reportnorms)
+struct triangulateio *io;
+int markers;
+int reporttriangles;
+int reportneighbors;
+int reportsegments;
+int reportedges;
+int reportnorms;
+{
+  int i, j;
+
+  for (i = 0; i < io->numberofpoints; i++) {
+    printf("Point %4d:", i);
+    for (j = 0; j < 2; j++) {
+      printf("  %.6g", io->pointlist[i * 2 + j]);
+    }
+    if (io->numberofpointattributes > 0) {
+      printf("   attributes");
+    }
+    for (j = 0; j < io->numberofpointattributes; j++) {
+      printf("  %.6g",
+             io->pointattributelist[i * io->numberofpointattributes + j]);
+    }
+    if (markers) {
+      printf("   marker %d\n", io->pointmarkerlist[i]);
+    } else {
+      printf("\n");
+    }
+  }
+  printf("\n");
+
+  if (reporttriangles || reportneighbors) {
+    for (i = 0; i < io->numberoftriangles; i++) {
+      if (reporttriangles) {
+        printf("Triangle %4d points:", i);
+        for (j = 0; j < io->numberofcorners; j++) {
+          printf("  %4d", io->trianglelist[i * io->numberofcorners + j]);
+        }
+        if (io->numberoftriangleattributes > 0) {
+          printf("   attributes");
+        }
+        for (j = 0; j < io->numberoftriangleattributes; j++) {
+          printf("  %.6g", io->triangleattributelist[i *
+                                         io->numberoftriangleattributes + j]);
+        }
+        printf("\n");
+      }
+      if (reportneighbors) {
+        printf("Triangle %4d neighbors:", i);
+        for (j = 0; j < 3; j++) {
+          printf("  %4d", io->neighborlist[i * 3 + j]);
+        }
+        printf("\n");
+      }
+    }
+    printf("\n");
+  }
+
+  if (reportsegments) {
+    for (i = 0; i < io->numberofsegments; i++) {
+      printf("Segment %4d points:", i);
+      for (j = 0; j < 2; j++) {
+        printf("  %4d", io->segmentlist[i * 2 + j]);
+      }
+      if (markers) {
+        printf("   marker %d\n", io->segmentmarkerlist[i]);
+      } else {
+        printf("\n");
+      }
+    }
+    printf("\n");
+  }
+
+  if (reportedges) {
+    for (i = 0; i < io->numberofedges; i++) {
+      printf("Edge %4d points:", i);
+      for (j = 0; j < 2; j++) {
+        printf("  %4d", io->edgelist[i * 2 + j]);
+      }
+      if (reportnorms && (io->edgelist[i * 2 + 1] == -1)) {
+        for (j = 0; j < 2; j++) {
+          printf("  %.6g", io->normlist[i * 2 + j]);
+        }
+      }
+      if (markers) {
+        printf("   marker %d\n", io->edgemarkerlist[i]);
+      } else {
+        printf("\n");
+      }
+    }
+    printf("\n");
+  }
+}
+
 #ifdef TRILIBRARY
 void* triangleio(
 	void *ModuleType,
@@ -16076,86 +16172,95 @@ void* triangleio(
 
 	// initialize
 	triangulate(init, &in, &mid, &vorout);
+	// report(&mid, 1, 1, 1, 1, 1, 0);
 
 	// refine
 	mid.trianglearealist = (REAL *) malloc(mid.numberoftriangles * sizeof(REAL));
 	memset(mid.trianglearealist, mid.numberoftriangles, (REAL)1.0);
 
-	out.pointlist = (REAL *) NULL;            /* Not needed if -N switch used. */
-	/* Not needed if -N switch used or number of attributes is zero: */
-	out.pointattributelist = (REAL *) NULL;
-	out.trianglelist = (int *) NULL;          /* Not needed if -E switch used. */
-	/* Not needed if -E switch used or number of triangle attributes is zero: */
-	out.triangleattributelist = (REAL *) NULL;
+
+	out.edgelist = (INT *)NULL; // -e         w/o -B
+	out.pointlist = (REAL *) NULL; // w/o -N       
+	out.trianglelist = (INT *) NULL; // w/o -E
+	out.triangleattributelist = (REAL *) NULL;  // w/o -E
+	out.pointattributelist = (REAL *) NULL; // w/o -N
+
+
+
 
 	triangulate(refine, &mid, &out, (struct triangulateio *) NULL);
 
-
-
+	// report(&out, 0, 1, 0, 0, 1, 0);
 
 	
-	jl_array_t* jl_pointlist = jl_alloc_array_1d(real_array_type, out.numberofpoints);
-	REAL *data_pointlist = (REAL *) jl_array_ptr(jl_pointlist);
-	memcpy(data_pointlist, out.pointlist,  out.numberofpoints*sizeof(REAL));
+	jl_array_t* jl_pointlist = jl_alloc_array_1d(real_array_type, 2*out.numberofpoints);
+	REAL *data_pointlist = (REAL *) jl_array_data(jl_pointlist);
+	memcpy(data_pointlist, out.pointlist,  2*out.numberofpoints*sizeof(REAL));
 
 	jl_array_t* jl_pointattributelist = jl_alloc_array_1d(real_array_type, out.numberofpointattributes);
-	REAL *date_pointattributelist = (REAL *) jl_array_ptr(jl_pointattributelist);
-	memcpy(date_pointattributelist, out.pointattributelist, out.numberofpointattributes*sizeof(REAL));
+	REAL *data_pointattributelist = (REAL *) jl_array_data(jl_pointattributelist);
+	memcpy(data_pointattributelist, out.pointattributelist, out.numberofpointattributes*sizeof(REAL));
+
+	jl_array_t* jl_pointmarkerlist = jl_alloc_array_1d(int_array_type, out.numberofpoints);
+	INT *data_pointmarkerlist = (INT *) jl_array_data(jl_pointmarkerlist);
+	memcpy(data_pointmarkerlist, out.pointmarkerlist, out.numberofpoints*sizeof(INT));
 
 
+	jl_array_t* jl_trianglelist = jl_alloc_array_1d(int_array_type,3 * out.numberoftriangles);
+	INT *data_trianglelist = (INT *) jl_array_data(jl_trianglelist);
+	memcpy(data_trianglelist, out.trianglelist,  3*out.numberoftriangles*sizeof(INT));
 
-	jl_array_t* jl_trianglelist = jl_alloc_array_1d(int_array_type, out.numberoftriangles);
-	INT *data_trianglelist = (INT *) jl_array_ptr(jl_trianglelist);
-	memcpy(data_trianglelist, out.trianglelist,  out.numberoftriangles*sizeof(INT));
-
+	
 
 	jl_array_t* jl_triangleattributelist = jl_alloc_array_1d(real_array_type, out.numberoftriangleattributes);
-	REAL *data_triangleattributelist = (REAL *) jl_array_ptr(jl_triangleattributelist);
+	REAL *data_triangleattributelist = (REAL *) jl_array_data(jl_triangleattributelist);
 	memcpy(data_triangleattributelist, out.triangleattributelist,  out.numberoftriangleattributes*sizeof(REAL));
 
 
 	// jl_array_t* jl_segmentlist = jl_alloc_array_1d(int_array_type, out.numberofsegments);
 
-	// INT *data_segmentlist = (INT *) jl_array_ptr(jl_segmentlist);
+	// INT *data_segmentlist = (INT *) jl_array_data(jl_segmentlist);
 
 	// memcpy(data_segmentlist, out.segmentlist,  out.numberofsegments*sizeof(INT));
 
 	// if (out.numberofholes > 0)
 	// {	
 	// 	jl_array_t* jl_holelist = jl_alloc_array_1d(int_array_type, out.numberofholes);
-	// 	INT *data_holelist = (INT *) jl_array_ptr(jl_holelist);
+	// 	INT *data_holelist = (INT *) jl_array_data(jl_holelist);
 	// 	memcpy(data_holelist, out.holelist,  out.numberofholes*sizeof(INT));
 	// }
 
 	
 	// jl_array_t* jl_regionlist = jl_alloc_array_1d(int_array_type, out.numberofregions);
-	// INT *data_regionlist = (INT *) jl_array_ptr(jl_regionlist);
+	// INT *data_regionlist = (INT *) jl_array_data(jl_regionlist);
 	// memcpy(data_regionlist, out.regionlist,  out.numberofregions*sizeof(INT));
 
-	jl_array_t* jl_edgelist = jl_alloc_array_1d(int_array_type, out.numberofedges);
-	INT *data_edgelist = (INT *) jl_array_ptr(jl_edgelist);
-	memcpy(data_edgelist, out.edgelist,  out.numberofedges*sizeof(INT));	
+	jl_array_t* jl_edgelist = jl_alloc_array_1d(int_array_type,2* out.numberofedges);
+	INT *data_edgelist = (INT *) jl_array_data(jl_edgelist);
+	memcpy(data_edgelist, out.edgelist, 2* out.numberofedges*sizeof(INT));	
+
 
 	jl_value_t *ret = jl_new_struct_uninit( dtype );
 
 
 	jl_set_nth_field( ret, 0, jl_pointlist );
 	jl_set_nth_field( ret, 1, jl_pointattributelist);
-	jl_set_nth_field( ret, 2, jl_BOX(out.numberofpoints) ); 
-	jl_set_nth_field( ret, 3, jl_BOX(out.numberofpointattributes) );
-	jl_set_nth_field( ret, 4, jl_trianglelist );
-	jl_set_nth_field( ret, 5, jl_triangleattributelist);
-	jl_set_nth_field( ret, 6, jl_BOX(out.numberoftriangles));
-	jl_set_nth_field( ret, 7, jl_BOX(out.numberofcorners));
-	jl_set_nth_field( ret, 8, jl_BOX(out.numberoftriangleattributes));
-	// jl_set_nth_field( ret, 9, jl_segmentlist);	
-	// jl_set_nth_field( ret, 10, jl_BOX(out.numberofsegments));
+	jl_set_nth_field( ret, 2, jl_pointmarkerlist);
+	jl_set_nth_field( ret, 3, jl_BOX(out.numberofpoints) ); 
+	jl_set_nth_field( ret, 4, jl_BOX(out.numberofpointattributes) );
+	jl_set_nth_field( ret, 5, jl_trianglelist );
+	jl_set_nth_field( ret, 6, jl_triangleattributelist);
+	jl_set_nth_field( ret, 7, jl_BOX(out.numberoftriangles));
+	jl_set_nth_field( ret, 8, jl_BOX(out.numberofcorners));
+	jl_set_nth_field( ret, 9, jl_BOX(out.numberoftriangleattributes));
+	// jl_set_nth_field( ret, 10, jl_segmentlist);	
+	// jl_set_nth_field( ret, 11, jl_BOX(out.numberofsegments));
 	// jl_set_nth_field( ret, 11, jl_holelist);
   	// jl_set_nth_field( ret, 12, jl_BOX(out.numberofholes));
-  	// jl_set_nth_field( ret, 11, jl_regionlist);
-  	// jl_set_nth_field( ret, 12, jl_BOX(out.numberofregions));
-   	jl_set_nth_field( ret, 9, jl_edgelist);
-  	jl_set_nth_field( ret, 10, jl_BOX(out.numberofedges));	
+  	// jl_set_nth_field( ret, 10, jl_regionlist);
+  	// jl_set_nth_field( ret, 11, jl_BOX(out.numberofregions));
+   	jl_set_nth_field( ret, 10, jl_edgelist);
+  	jl_set_nth_field( ret, 11, jl_BOX(out.numberofedges));	
 
 
 
@@ -16176,10 +16281,13 @@ void* triangleio(
 	free(vorout.pointattributelist);
 	free(vorout.edgelist);
 	free(vorout.normlist);
+
+
 	free(out.pointlist);
 	free(out.pointattributelist);
 	free(out.trianglelist);
 	free(out.triangleattributelist); 
+	free(out.edgelist);
 
 	return ret;
 

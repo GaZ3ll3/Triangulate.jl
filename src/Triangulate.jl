@@ -1,41 +1,43 @@
 module TriangleIO
 
 type triangulateio64
-  pointlist::Array{Int64,1}                                             
+  pointlist::Array{Int32,1}                                             
   pointattributelist::Array{Float64,1}                               
-  pointmarkerlist::Array{Int64,1}                                      
-  numberofpoints::Int64                                            
-  numberofpointattributes::Int64                                   
+  pointmarkerlist::Array{Int32,1}                                      
+  numberofpoints::Int32                                            
+  numberofpointattributes::Int32                                   
 
   trianglelist::Array{Int64,1}                                           
   triangleattributelist::Array{Float64,1}                                   
                                            
-  numberoftriangles::Int64                                         
-  numberofcorners::Int64                                           
-  numberoftriangleattributes::Int64                                                   
+  numberoftriangles::Int32                                         
+  numberofcorners::Int32                                           
+  numberoftriangleattributes::Int32                                                   
 
-  regionlist::Array{Float64,1}                      
-  numberofregions::Int64                   
+  # segmentlist::Array{Int32, 1}
+  # numberofsegments::Int32
+  # regionlist::Array{Float64,1}                      
+  # numberofregions::Int64                   
 
-  edgelist::Array{Int64,1}                        
+  edgelist::Array{Int32,1}                        
            
-  numberofedges::Int64  
+  numberofedges::Int32  
 end
 
 function triangulate(
 size::Float64,
-numberofpoints::Int64,
-numberofpointattributes::Int64,
+numberofpoints::Int32,
+numberofpointattributes::Int32,
 pointlist::Array{Float64, 1},
 pointattributelist::Array{Float64, 1},
-pointmarkerlist::Array{Int64, 1},
-numberofsegments::Int64,
-numberofholes::Int64,
-numberofregions::Int64,
+pointmarkerlist::Array{Int32, 1},
+numberofsegments::Int32,
+numberofholes::Int32,
+numberofregions::Int32,
 regionlist::Array{Float64, 1})
 
-ret = ccall((:triangleio, "../lib/libtriangle.so"), Any, (Ptr{Void}, Ptr{Uint8}, Ptr{Uint8}, Int64, Int64, Ptr{Float64}, Ptr{Float64},Ptr{Int64}, Int64, Int64, Int64, Ptr{Float64}),
- (pointer_from_objref(TriangleIO)),"pczAevn",string("pra",size,"zBP"), numberofpoints, numberofpointattributes,  pointlist, pointattributelist, pointmarkerlist, numberofsegments, numberofholes, 
+ret = ccall((:triangleio, "../lib/libtriangle.so"), Any, (Ptr{Void}, Ptr{Uint8}, Ptr{Uint8}, Int32, Int32, Ptr{Float64}, Ptr{Float64},Ptr{Int32}, Int32, Int32, Int32, Ptr{Float64}),
+ (pointer_from_objref(TriangleIO)),"pczAevn",string("pr","a",size,"zBPe"), numberofpoints, numberofpointattributes,  pointlist, pointattributelist, pointmarkerlist, numberofsegments, numberofholes, 
  numberofregions, regionlist)
 
 return ret
