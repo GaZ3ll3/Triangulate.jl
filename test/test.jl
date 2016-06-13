@@ -1,6 +1,6 @@
 # include("call.jl")
 include("../src/Triangulate.jl")
-
+using Gadfly
 np = 4
 na = 1
 pl = [0., 0., 1., 0., 1., 1., 0., 1.]
@@ -21,10 +21,14 @@ rl = [0.5, 5.0, 7.0, 0.1]
 
 
 
-ret = TriangleIO.triangulate(0.01, int32(np), int32(na), pl, pal, int32(pml), int32(ns), int32(nh), int32(nr), rl)
+ret = TriangleIO.triangulate(0.01, Int32(np), Int32(na), pl, pal, round(Int32,pml), Int32(ns), Int32(nh), Int32(nr), rl)
 
 # println(ret.triangleattributelist)
+#println(ret.pointlist)
+npoints = length(ret.pointlist)
+X = reshape(ret.pointlist, 2, Int(npoints/2) )
+plot(x=X[1,:], y=X[2,:])
 
-println(ret.edgelist)
-println(ret.numberofedges)
-println(ret.pointmarkerlist)
+# println(ret.edgelist)
+# println(ret.numberofedges)
+# println(ret.pointmarkerlist)

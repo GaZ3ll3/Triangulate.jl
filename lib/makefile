@@ -97,8 +97,7 @@ RM = /bin/rm -rf
 all: $(BIN)libtriangle.so
 
 $(BIN)libtriangle.so:$(SRC)triangle.c $(SRC)triangle.h 
-	$(CC) $(CSWITCHES) $(TRILIBDEFS) -shared -fPIC -o $(BIN)libtriangle.so $(SRC)triangle.c
-
+	$(CC) $(CSWITCHES) $(TRILIBDEFS) -shared -fPIC -o $(BIN)libtriangle.so $(SRC)triangle.c -ljulia
 $(BIN)showme: $(SRC)showme.c
 	$(CC) $(CSWITCHES) -o $(BIN)showme $(SRC)showme.c -lX11
 
