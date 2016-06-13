@@ -37,7 +37,7 @@ numberofregions::Int32,
 regionlist::Array{Float64, 1})
 
 ret = ccall((:triangleio, "../lib/libtriangle.so"), Any, (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}, Int32, Int32, Ptr{Float64}, Ptr{Float64},Ptr{Int32}, Int32, Int32, Int32, Ptr{Float64}),
- (pointer_from_objref(TriangleIO)),"pczAevn",string("pr","a",size,"zBPe"), numberofpoints, numberofpointattributes,  pointlist, pointattributelist, pointmarkerlist, numberofsegments, numberofholes,
+ (pointer_from_objref(TriangleIO)),"QpczAevn",string("Qpr","a",size,"zBPe"), numberofpoints, numberofpointattributes,  pointlist, pointattributelist, pointmarkerlist, numberofsegments, numberofholes,
  numberofregions, regionlist)
 
 return ret
