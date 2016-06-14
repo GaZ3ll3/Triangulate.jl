@@ -19,7 +19,21 @@ function triangulate(size::Float64,numberofpoints::Int64,pointlist::Array{Float6
   return ret
 end
 
-export triangulate
-
+function UnitSquareMesh(tol::Float64)
+  ret = triangulate(tol, 4, [0., 0., 1., 0., 1., 1., 0., 1.])
+  return ret
 end
 
+function UnitCircle(tol::Float64, size::Int64)
+  Θ = 2 * π/size
+  pointlist = zeros(2 * size)
+  for idx in 1:size
+    pointlist[2 * idx - 1] = cos(idx * Θ)
+    pointlist[2 * idx    ] = sin(idx * Θ)
+  end
+  ret = triangulate(tol, size, pointlist)
+end
+
+export triangulate, UnitSquareMesh, UnitCircle
+
+end
