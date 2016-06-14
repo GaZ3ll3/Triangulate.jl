@@ -13,7 +13,7 @@ const TrianglelibPath = abspath(joinpath(splitdir(Base.source_path())[1],"..","l
 
 function execute(size::Float64,numberofpoints::Int64,pointlist::Array{Float64, 1})
   println(TrianglelibPath)
-  ret = ccall((:triangleio, TrianglelibPath), Any, (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}, Int64, Ptr{Float64}),(pointer_from_objref(Triangulate)),"pczAevn",string("pr","a",size,"zBPe"), Int32(numberofpoints), pointlist)
+  ret = ccall((:triangleio, TrianglelibPath), Any, (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}, Int64, Ptr{Float64}),(pointer_from_objref(Triangulate)),"pcAevn",string("pr","a",size,"BPe"), Int32(numberofpoints), pointlist)
   return ret
 end
 
