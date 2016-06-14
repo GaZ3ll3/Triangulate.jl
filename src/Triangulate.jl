@@ -15,7 +15,7 @@ function triangulate(size::Float64,numberofpoints::Int64,pointlist::Array{Float6
   if numberofpoints * 2 != length(pointlist)
     error("Triangulate: Inconsistent Mesh Input.")
   end
-  ret = ccall((:triangleio, TrianglelibPath), Any, (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}, Int64, Ptr{Float64}),(pointer_from_objref(Triangulate)),"pcAevn",string("pr","a",size,"BPe"), Int32(numberofpoints), pointlist)
+  ret = ccall((:triangleio, TrianglelibPath), Any, (Ptr{Void}, Ptr{UInt8}, Ptr{UInt8}, Int64, Ptr{Float64}),(pointer_from_objref(Triangulate)),"QpcAevn",string("Qpr","a",size,"BPe"), Int32(numberofpoints), pointlist)
   return ret
 end
 
