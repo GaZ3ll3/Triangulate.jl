@@ -16257,7 +16257,7 @@ void* triangleio(
 
 
 
-	jl_gc_enable(1);	// very important before returning
+	//jl_gc_enable(1);	// very important before returning
 
 	free(mid.pointlist);
 	free(mid.pointattributelist);
