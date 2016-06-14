@@ -16134,11 +16134,13 @@ void* triangleio(
 	in.numberofpoints = numberofpoints;
 	in.numberofpointattributes = 0;
 	in.pointlist = pointlist;
-	in.pointattributelist = (REAL *) NULL;
-	//in.pointmarkerlist = (INT *) NULL;
+	//in.pointattributelist = (REAL *) NULL;
+	in.pointmarkerlist = (INT *) NULL;
 	in.numberofsegments = 0;
+  in.segmentlist = (INT*) NULL;
+  in.segmentmarkerlist = (INT*) NULL;
 	in.numberofholes = 0;
-	in.numberofregions = 1;
+	in.numberofregions = 0;
 	//in.regionlist = (REAL *) NULL;
 
 
@@ -16257,7 +16259,7 @@ void* triangleio(
 
 
 
-	//jl_gc_enable(1);	// very important before returning
+	jl_gc_enable(1);	// very important before returning
 
 	free(mid.pointlist);
 	free(mid.pointattributelist);
