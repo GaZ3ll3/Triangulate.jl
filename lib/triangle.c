@@ -16180,9 +16180,6 @@ void* triangleio(
 	out.triangleattributelist = (REAL *) NULL;  // w/o -E
 	out.pointattributelist = (REAL *) NULL; // w/o -N
 
-
-
-
 	triangulate(refine, &mid, &out, (struct triangulateio *) NULL);
 
 	// report(&out, 0, 1, 0, 0, 1, 0);
@@ -16205,8 +16202,7 @@ void* triangleio(
 	INT *data_trianglelist = (INT *) jl_array_data(jl_trianglelist);
 	memcpy(data_trianglelist, out.trianglelist,  3*out.numberoftriangles*sizeof(INT));
 
-  //
-  //
+
 	// jl_array_t* jl_triangleattributelist = jl_alloc_array_1d(real_array_type, out.numberoftriangleattributes);
 	// REAL *data_triangleattributelist = (REAL *) jl_array_data(jl_triangleattributelist);
 	// memcpy(data_triangleattributelist, out.triangleattributelist,  out.numberoftriangleattributes*sizeof(REAL));
@@ -16239,23 +16235,11 @@ void* triangleio(
 
 
 	jl_set_nth_field( ret, 0, jl_pointlist );
-	// jl_set_nth_field( ret, 1, jl_pointattributelist);
-	// jl_set_nth_field( ret, 2, jl_pointmarkerlist);
 	jl_set_nth_field( ret, 1, jl_BOX(out.numberofpoints) );
-	// jl_set_nth_field( ret, 4, jl_BOX(out.numberofpointattributes) );
 	jl_set_nth_field( ret, 2, jl_trianglelist );
-	// jl_set_nth_field( ret, 6, jl_triangleattributelist);
 	jl_set_nth_field( ret, 3, jl_BOX(out.numberoftriangles));
-	// jl_set_nth_field( ret, 8, jl_BOX(out.numberofcorners));
-	// jl_set_nth_field( ret, 9, jl_BOX(out.numberoftriangleattributes));
-	// jl_set_nth_field( ret, 10, jl_segmentlist);
-	// jl_set_nth_field( ret, 11, jl_BOX(out.numberofsegments));
-	// jl_set_nth_field( ret, 11, jl_holelist);
-  // jl_set_nth_field( ret, 12, jl_BOX(out.numberofholes));
-  // jl_set_nth_field( ret, 10, jl_regionlist);
-  // jl_set_nth_field( ret, 11, jl_BOX(out.numberofregions));
-  jl_set_nth_field( ret, 4, jl_edgelist);
-  jl_set_nth_field( ret, 5, jl_BOX(out.numberofedges));
+	jl_set_nth_field( ret, 4, jl_edgelist);
+	jl_set_nth_field( ret, 5, jl_BOX(out.numberofedges));
 
 
 
