@@ -9,4 +9,3 @@ mesh = Triangulate.triangulate(0.001, numberofpoints, pointlist)
 mesh = Triangulate.triangulate(0.0001, numberofpoints, pointlist)
 t = toq()
 println(t)
-
